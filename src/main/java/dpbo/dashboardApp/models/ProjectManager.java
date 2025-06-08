@@ -57,6 +57,20 @@ public class ProjectManager {
 				}
 			}
 			return projectList;
-		}        
+		}
+
+		public void displayAllProjectDetails(int userId) throws Exception {
+			ArrayList<Integer> projectIds = projectDbController.getProjectIdOwnedByUser(userId);
+
+			for (int projectId : projectIds) {
+				Project project = findProjectById(projectId);
+				System.out.println("Project ID: " + project.getId());
+				System.out.println("Title: " + project.getTitle());
+				System.out.println("Description: " + project.getDescription());
+				//System.out.println("Owner ID: " + project.getOwnerId());
+				System.out.println("Deadline: " + project.getDeadline());
+				System.out.println("-----------------------------");
+			}
+		}
         
 }

@@ -1,13 +1,16 @@
 package dpbo.dashboardApp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import dpbo.dashboardApp.auth.AuthService;
+import dpbo.dashboardApp.db.DatabaseManager;
 import dpbo.dashboardApp.db.ProjectDbController;
 import dpbo.dashboardApp.db.RevisionDbController;
 import dpbo.dashboardApp.db.UserDbController;
+import dpbo.dashboardApp.exceptions.ProjectNotFoundException;
 import dpbo.dashboardApp.models.Project;
 import dpbo.dashboardApp.models.ProjectManager;
 import dpbo.dashboardApp.models.Revision;
@@ -15,8 +18,12 @@ import dpbo.dashboardApp.models.User;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-		Scanner input = new Scanner(System.in);
 
+		// Initialize the database connection
+		DatabaseManager dbManager = new DatabaseManager();
+		dbManager.initializeDatabase();
+
+		Scanner input = new Scanner(System.in);
 		System.out.println("=========================================");
 		System.out.println("  SELAMAT DATANG DI DASHBOARD PROYEK");
 		System.out.println("    PT. SAPTALOKA DIGITAL INDONESIA");
@@ -38,7 +45,7 @@ public class Main {
 		System.out.println("Welcome, " + user.getUsername() + "! You have successfully logged in.");
 		
 		int choice = 0;
-		while (choice != 0) {
+		while (choice != 5) {
 		displayMenu();
 		choice = Integer.parseInt(input.nextLine());
 
@@ -48,7 +55,7 @@ public class Main {
 			case 1:
 				{
 					try {
-						projectManager.displayAllProjectDetails();
+						projectManager.displayAllProjectDetails(user.getId());
 					} catch (Exception e) {
 						System.out.println("Error: " + e.getMessage());
 					}
@@ -65,6 +72,12 @@ public class Main {
 					String client = input.nextLine();
 					System.out.print("Masukkan Tanggal Deadline (YYYY-MM-DD): ");
 					String deadlineStr = input.nextLine();
+					System.out.print("Tipe Proyek (web, desktop, mobile):");
+					String type = input.nextLine();
+					if (!type.equals("web") && !type.equals("desktop") && !type.equals("mobile")) {
+						System.out.println("Tipe proyek tidak valid. Harap masukkan 'web', 'desktop', atau 'mobile'.");
+						continue;
+					}
 
 					// get clientId from DB
 					UserDbController userDbController = new UserDbController();
@@ -82,7 +95,7 @@ public class Main {
 					ProjectDbController projectDbController = new ProjectDbController();
 
 					try {
-						projectDbController.createNewProject(title, description, deadline, clientId);
+						projectDbController.createNewProject(title, description, deadline, clientId, type);
 						System.out.println("Proyek berhasil ditambahkan.");
 					} catch (Exception e) {
 						System.out.println("Error: " + e.getMessage());
@@ -112,8 +125,10 @@ public class Main {
 				{
 					System.out.print("Masukkan Nama Klien untuk mencari proyek: ");
 					String clientName = input.nextLine();
+					UserDbController userDbController = new UserDbController();
+					int clientId = userDbController.getIdFromUsername(clientName);
 
-					List<Project> projects = projectManager.findProjectsByClient(clientName);
+					List<Project> projects = projectManager.findProjectsByClient(clientId);
 					if (projects.isEmpty()) {
 						System.out.println("Tidak ada proyek ditemukan untuk klien: " + clientName);
 					} else {
@@ -136,12 +151,7 @@ public class Main {
 					}
 
 					try {
-						boolean removed = projectManager.removeProject(projectId);
-						if (removed) {
-							System.out.println("Proyek berhasil dihapus.");
-						} else {
-							System.out.println("Proyek tidak ditemukan atau gagal dihapus.");
-						}
+						projectManager.removeProject(projectId);
 					} catch (Exception e) {
 						System.out.println("Error: " + e.getMessage());
 					}
@@ -176,8 +186,9 @@ public class Main {
 		System.out.print("Enter your choice: ");
 	}
 
-	private static void revisionMenu() {
+	private static void revisionMenu() throws Exception {
 		Scanner scanner = new Scanner(System.in);
+		RevisionDbController revisionDbController = new RevisionDbController();
 		System.out.print("Masukkan ID proyek: ");
 		int projectId;
 		try {
@@ -206,7 +217,13 @@ public class Main {
 
 			switch (pilihan) {
 				case 1:
-					List<Revision> revisi = project.getAllRevisions();
+					List<Revision> revisi;
+					ArrayList<Integer> ids =  new RevisionDbController().getRevisionIdsFromProject(projectId);
+					revisi = new ArrayList<Revision>();
+					for (int id : ids) {
+						revisi.add(new Revision(id));
+					}
+
 					if (revisi.isEmpty()) {
 						System.out.println("Belum ada revisi.");
 					} else {
@@ -222,8 +239,6 @@ public class Main {
 					String title = scanner.nextLine();
 					System.out.print("Deskripsi: ");
 					String desc = scanner.nextLine();
-
-					RevisionDbController revisionDbController = new RevisionDbController();
 					revisionDbController.createRevision(projectId, title, desc);
 
 					System.out.println("Revisi ditambahkan.");
@@ -232,38 +247,29 @@ public class Main {
 				case 3:
 					System.out.print("ID Revisi yang ingin diedit: ");
 					String idToEdit = scanner.nextLine();
-					Revision editRev = project.getRevisionByKey(idToEdit);
-					if (editRev != null) {
-						System.out.print("Judul baru: ");
-						editRev.setTitle(scanner.nextLine());
-						System.out.print("Deskripsi baru: ");
-						editRev.setDescription(scanner.nextLine());
-						System.out.print("Status baru: ");
-						editRev.setStatus(scanner.nextLine());
-						boolean updated = project.updateRevision(idToEdit, editRev);
-						if (updated) {
+					Revision revision = new Revision(projectId);
+					try {
+						String notes = revisionDbController.getNotes(revision.getId());
+						System.out.println("Catatan saat ini: " + notes);
+						System.out.print("Masukkan catatan baru: ");
+						String newNotes = scanner.nextLine();
+						revisionDbController.setNotes(revision.getId(), newNotes);
 						System.out.println("Revisi diperbarui.");
-						} else {
-						System.out.println("Gagal memperbarui revisi.");
-						}
-					} else {
-						System.out.println("Revisi tidak ditemukan.");
+					} catch (Exception e) {
+						System.out.println("Error: " + e.getMessage());
 					}
-					break;
+				break;
 
 				case 4:
 					System.out.print("ID Revisi yang ingin dihapus: ");
 					String idToDelete = scanner.nextLine();
-					boolean removed = project.deleteRevision(idToDelete);
-					if (removed) {
-						System.out.println("Revisi dihapus.");
-					} else {
-						System.out.println("Revisi tidak ditemukan atau gagal dihapus.");
+					try {
+						revisionDbController.removeRevision(Integer.parseInt(idToDelete));
+						System.out.println("Revisi berhasil dihapus.");
+					} catch (Exception e) {
+						System.out.println("Error: " + e.getMessage());
 					}
-					break;
 
-					case 5:
-					back = true;
 					break;
 
 				default:

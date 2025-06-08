@@ -1,12 +1,14 @@
 package dpbo.dashboardApp.db;
 
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
-public class ProjectDbController extends UserDbController {
+public class ProjectDbController extends DatabaseManager {
 
 	private Connection connection;
 
@@ -15,10 +17,10 @@ public class ProjectDbController extends UserDbController {
 		this.connection = super.getConnection();
 	}
 
-	public int createNewProject(String title, String description, LocalDateTime deadline, int ownerId) throws Exception {
+	public int createNewProject(String title, String description, LocalDateTime deadline, int ownerId, String type) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
-			int rowsAffected = statement.executeUpdate("INSERT INTO Project (title, description, deadline, owner_id) VALUES ('" + title + "', '" + description + "', '" + deadline + "', " + ownerId + ")", Statement.RETURN_GENERATED_KEYS);
+			int rowsAffected = statement.executeUpdate("INSERT INTO Project (title, description, deadline, owner_id, type) VALUES ('" + title + "', '" + description + "', '" + deadline + "', " + ownerId + ", '" +type + "')", Statement.RETURN_GENERATED_KEYS);
 			if (rowsAffected == 0) {
 				throw new RuntimeException("Failed to create new project.");
 			}
@@ -159,7 +161,10 @@ public class ProjectDbController extends UserDbController {
 		try {
 			ResultSet resultSet = statement.executeQuery("SELECT deadline FROM Project WHERE id = " + projectId);
 			if (resultSet.next()) {
-				return resultSet.getTimestamp("deadline").toLocalDateTime();
+				String str = resultSet.getString("deadline");
+				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+				
+				return  format.parse(str).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
 			} else {
 				throw new RuntimeException("Project with ID " + projectId + " not found.");
 			}
