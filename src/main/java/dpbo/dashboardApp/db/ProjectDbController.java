@@ -5,6 +5,9 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+
+import dpbo.dashboardApp.exceptions.ProjectNotFoundException;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 
@@ -110,10 +113,10 @@ public class ProjectDbController extends DatabaseManager {
 			if (resultSet.next()) {
 				return resultSet.getString("type");
 			} else {
-				throw new RuntimeException("Project with ID " + projectId + " not found.");
+				throw new ProjectNotFoundException("Project with ID " + projectId + " not found.");
 			}
 		} catch (Exception e) {
-			throw new RuntimeException("Failed to retrieve project type: " + e.getMessage(), e);
+			throw e;
 		}
 	}
 

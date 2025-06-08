@@ -18,7 +18,7 @@ public class RevisionDbController extends DatabaseManager {
 
 	public void createRevision(int projectId, String revisionName, String notes) throws Exception {
 		Statement statement = connection.createStatement();
-		int rowsAffected = statement.executeUpdate("INSERT INTO Revision (project_id, name, notes) VALUES (" + projectId + ", '" + revisionName + "', '" + notes + "')");
+		int rowsAffected = statement.executeUpdate("INSERT INTO Revision (project_id, notes) VALUES (" + projectId + ", '" + notes + "')");
 		if (rowsAffected == 0) {
 			throw new Exception("Failed to create revision for project ID " + projectId);
 		}

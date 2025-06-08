@@ -45,7 +45,7 @@ public class Main {
 		System.out.println("Welcome, " + user.getUsername() + "! You have successfully logged in.");
 		
 		int choice = 0;
-		while (choice != 5) {
+		while (choice != 9) {
 		displayMenu();
 		choice = Integer.parseInt(input.nextLine());
 
@@ -126,7 +126,13 @@ public class Main {
 					System.out.print("Masukkan Nama Klien untuk mencari proyek: ");
 					String clientName = input.nextLine();
 					UserDbController userDbController = new UserDbController();
-					int clientId = userDbController.getIdFromUsername(clientName);
+					int clientId;
+					try {
+						 clientId = userDbController.getIdFromUsername(clientName);
+					} catch(ProjectNotFoundException e) {
+						System.out.println(e.getMessage());
+						continue;
+					}
 
 					List<Project> projects = projectManager.findProjectsByClient(clientId);
 					if (projects.isEmpty()) {
@@ -160,7 +166,7 @@ public class Main {
 			case 6:
 				revisionMenu();
 				break;
-			case 0:
+			case 9:
 				System.out.println("Terima kasih, keluar dari program...");
 				break;
 			default:
@@ -182,7 +188,7 @@ public class Main {
 		System.out.println("4. Cari proyek berdasarkan nama klien");
 		System.out.println("5. Hapus proyek");
 		System.out.println("6. Menu Revisi");
-		System.out.println("0. Keluar");
+		System.out.println("9. Keluar");
 		System.out.print("Enter your choice: ");
 	}
 
@@ -201,7 +207,13 @@ public class Main {
 		ProjectManager projectManager = new ProjectManager();
 
 		try {
-			Project project = projectManager.findProjectById(projectId);
+			Project project;
+			try {
+				project = projectManager.findProjectById(projectId);
+			} catch (ProjectNotFoundException e) {
+				System.out.println("Project tidak ditemukan");
+				return;
+			}
 
 			int choice = 0;
 			while (choice != 5) {
@@ -234,7 +246,7 @@ public class Main {
 					break;
 
 				case 2:
-					
+					if (scanner.hasNextLine()) scanner.nextLine();
 					System.out.print("Judul: ");
 					String title = scanner.nextLine();
 					System.out.print("Deskripsi: ");
@@ -245,11 +257,18 @@ public class Main {
 					break;
 
 				case 3:
+					if (scanner.hasNextLine()) scanner.nextLine();
 					System.out.print("ID Revisi yang ingin diedit: ");
-					String idToEdit = scanner.nextLine();
+					int idToEdit;
+					try {
+						idToEdit = Integer.parseInt(scanner.nextLine());
+					} catch (Exception e) {
+						System.out.println("Bukan angka");
+						return;
+					}
 					Revision revision = new Revision(projectId);
 					try {
-						String notes = revisionDbController.getNotes(revision.getId());
+						String notes = revisionDbController.getNotes(idToEdit);
 						System.out.println("Catatan saat ini: " + notes);
 						System.out.print("Masukkan catatan baru: ");
 						String newNotes = scanner.nextLine();
@@ -261,16 +280,26 @@ public class Main {
 				break;
 
 				case 4:
+					if (scanner.hasNextLine()) scanner.nextLine();
 					System.out.print("ID Revisi yang ingin dihapus: ");
-					String idToDelete = scanner.nextLine();
+					int idToDelete;
 					try {
-						revisionDbController.removeRevision(Integer.parseInt(idToDelete));
+						idToDelete = Integer.parseInt(scanner.nextLine());
+					} catch (Exception e) {
+						System.out.println("Bukan angka");
+						return;
+					}
+					try {
+						revisionDbController.removeRevision(idToDelete);
 						System.out.println("Revisi berhasil dihapus.");
 					} catch (Exception e) {
 						System.out.println("Error: " + e.getMessage());
 					}
 
 					break;
+				
+				case 5:
+					return;
 
 				default:
 					System.out.println("Opsi tidak valid.");
