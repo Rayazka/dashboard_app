@@ -1,45 +1,39 @@
 package dpbo.dashboardApp.models;
 
-public class Revision {
-	private String id;
-	private String title;
-	private String description;
-	private String status;
+import java.time.LocalDateTime;
+
+import dpbo.dashboardApp.db.RevisionDbController;
+
+public class Revision extends RevisionDbController{
+	private int id;
+	private String notes;
 	private LocalDateTime createdAt;
-	public Revision(String id, String title, String description, String status, LocalDateTime createdAt) {
+	private int ProjectId;
+
+	public Revision(int id) throws Exception {
+		super();
 		this.id = id;
-		this.title = title;
-		this.description = description;
-		this.status = status;
-		this.createdAt = createdAt;
+		this.notes = super.getNotes(id);
+		this.createdAt = super.getCreatedAt(id);
+		this.ProjectId = super.getProjectId(id);
 	}
-	public String getId() {
+	public int getId() {
 		return id;
 	}
-	public void setId(String id) {
-		this.id = id;
+	public String getNotes() {
+		return notes;
 	}
-	public String getTitle() {
-		return title;
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
 	}
-	public void setTitle(String notes) {
-		this.title = title;
+	public int getProjectId() {
+		return ProjectId;
 	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String desc) {
-		this.description = description;
-	}
-	public String getStatus() {
-		return status;
-	}
-	public void setStatus(String status) {
-		this.status = status;
+	public void setNotes(String notes) throws Exception {
+		this.notes = super.setNotes(id, notes);
 	}
 	@Override
 	public String toString() {
-		return "Revision [id=" + id + ", title=" + title + ", description=" + description + ", status=" + status
-				+ ", createdAt=" + createdAt + "]";
+		return "Revision [id=" + id + "notes="+ notes + ", createdAt=" + createdAt + "]";
 	}
 }

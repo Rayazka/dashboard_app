@@ -41,6 +41,13 @@ public class AuthService extends UserDbController {
 		}
 	}
 
+	public int getUserId() {
+		if (!isLoggedIn) {
+			throw new IllegalStateException("User is not logged in.");
+		}
+		return id;
+	}
+
 	public boolean isLoggedIn() {
 		return isLoggedIn;
 	}

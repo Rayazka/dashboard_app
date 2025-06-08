@@ -6,8 +6,8 @@ public class MobileProject extends Project {
 
     private String platform;
 
-    public MobileProject(String id, String title, String description, String client, LocalDateTime deadline, String platform) {
-        super(id, title, description, client, deadline);
+    public MobileProject(int id, String platform) throws Exception {
+        super(id);
         this.platform = platform;
     }
 

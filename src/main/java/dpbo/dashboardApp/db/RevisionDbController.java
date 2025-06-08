@@ -3,6 +3,7 @@ package dpbo.dashboardApp.db;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import dpbo.dashboardApp.exceptions.RevisionNotFoundException;
@@ -13,6 +14,14 @@ public class RevisionDbController extends DatabaseManager {
 	public RevisionDbController() throws Exception {
 		super();
 		this.connection = super.getConnection();
+	}
+
+	public void createRevision(int projectId, String revisionName, String notes) throws Exception {
+		Statement statement = connection.createStatement();
+		int rowsAffected = statement.executeUpdate("INSERT INTO Revision (project_id, name, notes) VALUES (" + projectId + ", '" + revisionName + "', '" + notes + "')");
+		if (rowsAffected == 0) {
+			throw new Exception("Failed to create revision for project ID " + projectId);
+		}
 	}
 
 	public int getRevisionId(int projectId, String revisionName) throws Exception {
@@ -35,60 +44,42 @@ public class RevisionDbController extends DatabaseManager {
 		return revisionIds;
 	}
 
-	public String getTitle(int revisionId) throws Exception {
+	public String getNotes(int revisionId) throws Exception {
 		Statement statement = connection.createStatement();
-		ResultSet res = statement.executeQuery("SELECT title FROM Revision WHERE id = " + revisionId);
+		ResultSet res = statement.executeQuery("SELECT notes FROM Revision WHERE id = " + revisionId);
 		if (res.next()) {
-			return res.getString("title");
+			return res.getString("notes");
 		} else {
 			throw new RevisionNotFoundException("Revision with ID " + revisionId + " not found.");
 		}
 	}
 
-	public String setTitle(int revisionId, String title) throws Exception {
+	public String setNotes(int revisionId, String notes) throws Exception {
 		Statement statement = connection.createStatement();
-		int rowsAffected = statement.executeUpdate("UPDATE Revision SET title = '" + title + "' WHERE id = " + revisionId);
+		int rowsAffected = statement.executeUpdate("UPDATE Revision SET notes = '" + notes + "' WHERE id = " + revisionId);
 		if (rowsAffected == 0) {
 			throw new RevisionNotFoundException("Revision with ID " + revisionId + " not found.");
 		}
-		return title;
+		return notes;
 	}
 
-	public String getDescription(int revisionId) throws Exception {
+	public LocalDateTime getCreatedAt(int revisionId) throws Exception {
 		Statement statement = connection.createStatement();
-		ResultSet res = statement.executeQuery("SELECT description FROM Revision WHERE id = " + revisionId);
+		ResultSet res = statement.executeQuery("SELECT created_at FROM Revision WHERE id = " + revisionId);
 		if (res.next()) {
-			return res.getString("description");
+			return res.getTimestamp("created_at").toLocalDateTime();
 		} else {
 			throw new RevisionNotFoundException("Revision with ID " + revisionId + " not found.");
 		}
 	}
 
-	public String setDescription(int revisionId, String description) throws Exception {
+	public int getProjectId(int revisionId) throws Exception {
 		Statement statement = connection.createStatement();
-		int rowsAffected = statement.executeUpdate("UPDATE Revision SET description = '" + description + "' WHERE id = " + revisionId);
-		if (rowsAffected == 0) {
-			throw new RevisionNotFoundException("Revision with ID " + revisionId + " not found.");
-		}
-		return description;
-	}
-
-	public String getStatus(int revisionId) throws Exception {
-		Statement statement = connection.createStatement();
-		ResultSet res = statement.executeQuery("SELECT status FROM Revision WHERE id = " + revisionId);
+		ResultSet res = statement.executeQuery("SELECT project_id FROM Revision WHERE id = " + revisionId);
 		if (res.next()) {
-			return res.getString("status");
+			return res.getInt("project_id");
 		} else {
 			throw new RevisionNotFoundException("Revision with ID " + revisionId + " not found.");
 		}
-	}
-
-	public String setStatus(int revisionId, String status) throws Exception {
-		Statement statement = connection.createStatement();
-		int rowsAffected = statement.executeUpdate("UPDATE Revision SET status = '" + status + "' WHERE id = " + revisionId);
-		if (rowsAffected == 0) {
-			throw new RevisionNotFoundException("Revision with ID " + revisionId + " not found.");
-		}
-		return status;
 	}
 }

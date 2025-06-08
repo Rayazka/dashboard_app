@@ -1,8 +1,16 @@
 package dpbo.dashboardApp;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Scanner;
 
 import dpbo.dashboardApp.auth.AuthService;
+import dpbo.dashboardApp.db.ProjectDbController;
+import dpbo.dashboardApp.db.RevisionDbController;
+import dpbo.dashboardApp.db.UserDbController;
+import dpbo.dashboardApp.models.Project;
+import dpbo.dashboardApp.models.ProjectManager;
+import dpbo.dashboardApp.models.Revision;
 import dpbo.dashboardApp.models.User;
 
 public class Main {
@@ -34,22 +42,110 @@ public class Main {
 		displayMenu();
 		choice = Integer.parseInt(input.nextLine());
 
+		ProjectManager projectManager = new ProjectManager();
+
 		switch (choice) {
 			case 1:
-				projectManager.displayAllProjectDetails();
-				pause();
+				{
+					try {
+						projectManager.displayAllProjectDetails();
+					} catch (Exception e) {
+						System.out.println("Error: " + e.getMessage());
+					}
+				}
 				break;
 			case 2:
-				
+				{
+					
+					System.out.print("Masukkan Judul Proyek: ");
+					String title = input.nextLine();
+					System.out.print("Masukkan Deskripsi Proyek: ");
+					String description = input.nextLine();
+					System.out.print("Masukkan Nama Klien: ");
+					String client = input.nextLine();
+					System.out.print("Masukkan Tanggal Deadline (YYYY-MM-DD): ");
+					String deadlineStr = input.nextLine();
+
+					// get clientId from DB
+					UserDbController userDbController = new UserDbController();
+					int clientId = userDbController.getIdFromUsername(client);
+
+					// Parse the deadline string to LocalDateTime
+					LocalDateTime deadline;
+					try {
+						deadline = LocalDateTime.parse(deadlineStr + "T00:00:00");
+					} catch (Exception e) {
+						System.out.println("Format tanggal tidak valid. Gunakan format YYYY-MM-DD.");
+						continue;
+					}
+
+					ProjectDbController projectDbController = new ProjectDbController();
+
+					try {
+						projectDbController.createNewProject(title, description, deadline, clientId);
+						System.out.println("Proyek berhasil ditambahkan.");
+					} catch (Exception e) {
+						System.out.println("Error: " + e.getMessage());
+					}
+				}
 				break;
 			case 3:
-				
+				{
+					System.out.print("Masukkan ID Proyek yang ingin dicari: ");
+					int projectId;
+					try {
+						projectId = Integer.parseInt(input.nextLine());
+					} catch (NumberFormatException e) {
+						System.out.println("ID proyek tidak valid. Harap masukkan angka.");
+						continue;
+					}
+
+					try {
+						Project project = projectManager.findProjectById(projectId);
+						System.out.println("Proyek ditemukan: " + project.toString());
+					} catch (Exception e) {
+						System.out.println("Error: " + e.getMessage());
+					}
+				}
 				break;
 			case 4:
-				
+				{
+					System.out.print("Masukkan Nama Klien untuk mencari proyek: ");
+					String clientName = input.nextLine();
+
+					List<Project> projects = projectManager.findProjectsByClient(clientName);
+					if (projects.isEmpty()) {
+						System.out.println("Tidak ada proyek ditemukan untuk klien: " + clientName);
+					} else {
+						System.out.println("Proyek yang ditemukan untuk klien " + clientName + ":");
+						for (Project project : projects) {
+							System.out.println("- " + project.toString());
+						}
+					}
+				}
 				break;
 			case 5:
-				
+				{
+					System.out.print("Masukkan ID Proyek yang ingin dihapus: ");
+					int projectId;
+					try {
+						projectId = Integer.parseInt(input.nextLine());
+					} catch (NumberFormatException e) {
+						System.out.println("ID proyek tidak valid. Harap masukkan angka.");
+						continue;
+					}
+
+					try {
+						boolean removed = projectManager.removeProject(projectId);
+						if (removed) {
+							System.out.println("Proyek berhasil dihapus.");
+						} else {
+							System.out.println("Proyek tidak ditemukan atau gagal dihapus.");
+						}
+					} catch (Exception e) {
+						System.out.println("Error: " + e.getMessage());
+					}
+				}
 				break;
 			case 6:
 				revisionMenu();
@@ -59,7 +155,7 @@ public class Main {
 				break;
 			default:
 				System.out.println("Pilihan tidak valid. Coba lagi.");
-				break();
+				break;
 			}
 		}
 
@@ -81,8 +177,17 @@ public class Main {
 	}
 
 	private static void revisionMenu() {
+		Scanner scanner = new Scanner(System.in);
 		System.out.print("Masukkan ID proyek: ");
-		String projectId = scanner.nextLine();
+		int projectId;
+		try {
+			projectId = Integer.parseInt(scanner.nextLine());
+		} catch (NumberFormatException e) {
+			System.out.println("ID proyek tidak valid. Harap masukkan angka.");
+			return;
+		}
+
+		ProjectManager projectManager = new ProjectManager();
 
 		try {
 			Project project = projectManager.findProjectById(projectId);
@@ -112,15 +217,15 @@ public class Main {
 					break;
 
 				case 2:
-					System.out.print("ID Revisi: ");
-					String id = scanner.nextLine();
+					
 					System.out.print("Judul: ");
 					String title = scanner.nextLine();
 					System.out.print("Deskripsi: ");
 					String desc = scanner.nextLine();
 
-					Revision newRev = new Revision(id, title, desc);
-					project.addRevision(id, newRev);
+					RevisionDbController revisionDbController = new RevisionDbController();
+					revisionDbController.createRevision(projectId, title, desc);
+
 					System.out.println("Revisi ditambahkan.");
 					break;
 
