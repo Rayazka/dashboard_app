@@ -56,6 +56,7 @@ public class DatabaseManager {
 				+ "id INTEGER PRIMARY KEY,"
 				+ "title VARCHAR(100) NOT NULL,"
 				+ "description TEXT,"
+				+ "deadline DATETIME"
 				+ "FOREIGN KEY (owner_id) REFERENCES User(id)"
 				+ "STATUS TEXT DEFAULT 'active'"
 				);
