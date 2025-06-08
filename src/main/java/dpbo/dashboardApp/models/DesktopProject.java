@@ -6,8 +6,8 @@ public class DesktopProject extends Project {
 
     private String operationSystem;
 
-    public DesktopProject(String id, String title, String description, String client, LocalDateTime deadline, String operationSystem) {
-        super(id, title, description, client, deadline);
+    public DesktopProject(int id, String operationSystem) throws Exception {
+        super(id);
         this.operationSystem = operationSystem;
     }
 

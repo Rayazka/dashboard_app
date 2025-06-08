@@ -56,8 +56,9 @@ public class DatabaseManager {
 				+ "id INTEGER PRIMARY KEY,"
 				+ "title VARCHAR(100) NOT NULL,"
 				+ "description TEXT,"
-				+ "deadline DATETIME"
-				+ "FOREIGN KEY (owner_id) REFERENCES User(id)"
+				+ "deadline DATETIME DEFAULT CURRENT_TIMESTAMP,"
+				+ "type TEXT CHECK (type IN ('web', 'mobile', 'desktop')) NOT NULL,"
+				+ "FOREIGN KEY (owner_id) REFERENCES User(id) ON DELETE CASCADE ON UPDATE CASCADE,"
 				+ "STATUS TEXT DEFAULT 'active'"
 				);
 

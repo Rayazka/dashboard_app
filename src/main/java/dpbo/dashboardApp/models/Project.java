@@ -10,29 +10,33 @@ import java.util.List;
 import java.util.Map;
 
 import dpbo.dashboardApp.db.DatabaseManager;
+import dpbo.dashboardApp.db.ProjectDbController;
 
-public abstract class Project extends DatabaseManager {
+public abstract class Project extends ProjectDbController {
 
     // Atribut
-    private String id;
+    private int id;
     private String title;
     private String description;
-    private Map<String, Revision> revisions;
-    private String client;
+    private Map<Integer, Revision> revisions;
+    private int ownerId;
     private LocalDateTime deadline;
 
     private Connection connection;
 
     // Konstruktor
-    public Project(String id, String title, String description, String client, LocalDateTime deadline) {
+    public Project(int id) throws Exception {
         super();
         try {
             this.id = id;
-            this.title = title;
-            this.description = description;
-            this.client = client;
-            this.deadline = deadline;
-            this.revisions = new HashMap<>();
+			
+			this.title = super.getTitle(id);
+			this.description = super.getDescription(id);
+			this.client = super.getOwnerId(id);
+			this.deadline = super.getDeadline(id);
+
+
+            this.revisions = new HashMap<Integer,Revision>();
             this.connection = super.getConnection();
         } catch (Exception e) {
             e.printStackTrace();
@@ -40,20 +44,17 @@ public abstract class Project extends DatabaseManager {
     }
 
     // Getter dan Setter (sesuai UML)
-    public String getId() {
+    public int getId() {
         return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public void setTitle(String title) throws Exception {
         this.title = title;
+		super.setTitle(id, title);
     }
 
     public String getDescription() {
@@ -64,53 +65,26 @@ public abstract class Project extends DatabaseManager {
         this.description = desc;
     }
 
-    public String getClient() {
-        return client;
+    public int getOwner() {
+        return ownerId;
     }
 
-    public void setClient(String client) {
-        this.client = client;
+    public void setOwner(int owner) throws Exception {
+        this.ownerId = owner;
+		super.setOwner(id, owner);
     }
 
     public LocalDateTime getDeadline() {
         return deadline;
     }
 
-    public void setDeadline(LocalDateTime deadline) {
+    public void setDeadline(LocalDateTime deadline) throws Exception {
         this.deadline = deadline;
+		super.setDeadline(id, deadline);
     }
 
     public List<Revision> getRevision() {
-        return new ArrayList<>(revisions.values());
-    }
-
-    public void addRevision(String key, Revision revision) {
-        this.revisions.put(key, revision);
-    }
-
-    public void setStatus(String status) {
-        // Optional: implement if you have a status field
-    }
-
-    // Implementasi database
-    public String getProjectNameById(String id) throws Exception {
-        Statement statement = connection.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT title FROM Project WHERE id = '" + id + "'");
-        if (rs.next()) {
-            return rs.getString("title");
-        } else {
-            throw new Exception("Project not found with id: " + id);
-        }
-    }
-
-    public String updateProjectTitle(String id, String title) throws Exception {
-        Statement statement = connection.createStatement();
-        int rows = statement.executeUpdate("UPDATE Project SET title = '" + title + "' WHERE id = '" + id + "'");
-        if (rows > 0) {
-            return "Title updated successfully.";
-        } else {
-            throw new Exception("Project not found with id: " + id);
-        }
+        return new ArrayList<Revision>(revisions.values());
     }
 
     // toString override
@@ -157,7 +131,7 @@ public abstract class Project extends DatabaseManager {
     }
 
     public List<Revision> getAllRevisions() {
-        return new ArrayList<>(revisions.values());
+        return new ArrayList<Revision>(revisions.values());
     }
 
     // Abstract methods

@@ -1,13 +1,17 @@
 package dpbo.dashboardApp.models;
 
-class User {
-	private String id;
+import dpbo.dashboardApp.db.UserDbController;
+
+public class User extends UserDbController {
+	private int id;
 	private String username;
-	public User(String id, String username) {
+
+	public User(int id) throws Exception{
+		super();
 		this.id = id;
-		this.username = username;
+		this.username = super.getName(id);
 	}
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 	public String getUsername() {

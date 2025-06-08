@@ -15,6 +15,50 @@ public class ProjectDbController extends UserDbController {
 		this.connection = super.getConnection();
 	}
 
+	public int createNewProject(String title, String description, LocalDateTime deadline, int ownerId) throws Exception {
+		Statement statement = connection.createStatement();
+		try {
+			int rowsAffected = statement.executeUpdate("INSERT INTO Project (title, description, deadline, owner_id) VALUES ('" + title + "', '" + description + "', '" + deadline + "', " + ownerId + ")", Statement.RETURN_GENERATED_KEYS);
+			if (rowsAffected == 0) {
+				throw new RuntimeException("Failed to create new project.");
+			}
+			ResultSet generatedKeys = statement.getGeneratedKeys();
+			if (generatedKeys.next()) {
+				return generatedKeys.getInt(1);
+			} else {
+				throw new RuntimeException("Failed to retrieve project ID.");
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to create new project: " + e.getMessage(), e);
+		}
+	}
+
+	public void removeProject(int projectId) throws Exception {
+		Statement statement = connection.createStatement();
+		try {
+			int rowsAffected = statement.executeUpdate("DELETE FROM Project WHERE id = " + projectId);
+			if (rowsAffected == 0) {
+				throw new RuntimeException("Project with ID " + projectId + " not found.");
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to remove project: " + e.getMessage(), e);
+		}
+	}
+
+	public String get(int projectId, String field) throws Exception {
+		Statement statement = connection.createStatement();
+		try {
+			ResultSet resultSet = statement.executeQuery("SELECT " + field + " FROM Project WHERE id = " + projectId);
+			if (!resultSet.next()) {
+				throw new RuntimeException("Project with ID " + projectId + " not found.");
+			}
+			return resultSet.getString(field);
+			// Process the result as needed
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to retrieve project field: " + e.getMessage(), e);
+		}
+	}
+
 	public ArrayList<Integer> getProjectIdOwnedByUser(int userId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -54,6 +98,32 @@ public class ProjectDbController extends UserDbController {
 			return title;
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to update project title: " + e.getMessage(), e);
+		}
+	}
+
+	public String getType(int projectId) throws Exception {
+		Statement statement = connection.createStatement();
+		try {
+			ResultSet resultSet = statement.executeQuery("SELECT type FROM Project WHERE id = " + projectId);
+			if (resultSet.next()) {
+				return resultSet.getString("type");
+			} else {
+				throw new RuntimeException("Project with ID " + projectId + " not found.");
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to retrieve project type: " + e.getMessage(), e);
+		}
+	}
+
+	public void setType(int projectId, String type) throws Exception {
+		Statement statement = connection.createStatement();
+		try {
+			int rowsAffected = statement.executeUpdate("UPDATE Project SET type = '" + type + "' WHERE id = " + projectId);
+			if (rowsAffected == 0) {
+				throw new RuntimeException("Project with ID " + projectId + " not found.");
+			}
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to update project type: " + e.getMessage(), e);
 		}
 	}
 

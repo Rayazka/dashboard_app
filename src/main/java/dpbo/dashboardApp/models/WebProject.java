@@ -6,8 +6,8 @@ public class WebProject extends Project {
 
     private String domainName;
 
-    public WebProject(String id, String title, String description, String client, LocalDateTime deadline, String domainName) {
-        super(id, title, description, client, deadline);
+    public WebProject(int id,String domainName) throws Exception {
+        super(id);
         this.domainName = domainName;
     }
 
