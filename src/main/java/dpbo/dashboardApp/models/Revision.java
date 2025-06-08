@@ -1,7 +1,5 @@
 package dpbo.dashboardApp.models;
 
-import java.time.LocalDateTime;
-
 public class Revision {
 	private String id;
 	private String title;

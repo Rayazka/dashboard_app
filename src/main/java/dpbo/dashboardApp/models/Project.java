@@ -72,6 +72,7 @@ public abstract class Project extends DatabaseManager {
         this.client = client;
     }
 
+<<<<<<< HEAD
     public LocalDateTime getDeadline() {
         return deadline;
     }
@@ -117,12 +118,62 @@ public abstract class Project extends DatabaseManager {
     @Override
     public String toString() {
         return "Project ID: " + id + ", Title: " + title + ", Client: " + client;
+=======
+    public void setDeadline(LocalDate deadline) {
+        this.deadline = (deadline != null ? deadline : LocalDate.now().plusMonths(1));
+    }
+
+    @Override
+    public void addRevision(Revision revision) {
+        if (revision != null && revision.getId() != null && !revision.getId().trim().isEmpty()) {
+            this.revisionsMap.put(revision.getId(), revision);
+        } else {
+            System.out.println("Error: Cannot add invalid revision (null or no ID).");
+        }
+    }
+
+    @Override
+    public boolean removeRevision(String revisionId) {
+        if (revisionId == null || revisionId.trim().isEmpty()) {
+            return false;
+        }
+        return this.revisionsMap.remove(revisionId) != null;
+    }
+
+    @Override
+    public Revision findRevision(String revisionId) throws RevisionNotFoundException {
+        if (revisionId == null || revisionId.trim().isEmpty()) {
+            throw new RevisionNotFoundException("Revision ID to find cannot be null or empty.");
+        }
+        Revision revision = this.revisionsMap.get(revisionId);
+        if (revision == null) {
+            throw new RevisionNotFoundException("Revision with ID '" + revisionId + "' not found in project '" + this.id + "'.");
+        }
+        return revision;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("ID: %-10s | Title: %-30s | Client: %-20s | Deadline: %s | Revisions: %d",
+                (id != null ? id : "N/A"),
+                (title != null ? title.substring(0, Math.min(title.length(), 30)) : "N/A"),
+                (client != null ? client.substring(0, Math.min(client.length(), 20)) : "N/A"),
+                getDeadlineAsString(),
+                revisionsMap.size()
+        );
+>>>>>>> 78b702b (add ProjectManager class)
     }
 
     // Abstract methods
     public abstract void displayProjectDetails();
+<<<<<<< HEAD
 
     public abstract double calculateEstimateBudget();
 
     public abstract LocalDateTime calculateEstimateProjectComplete();
 }
+=======
+    public abstract double calculateEstimateBudget();
+    public abstract LocalDate calculateEstimateProjectComplete();
+}
+>>>>>>> 78b702b (add ProjectManager class)
