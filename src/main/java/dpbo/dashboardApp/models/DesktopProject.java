@@ -39,6 +39,7 @@ public class DesktopProject extends Project {
 
     @Override
     public double calculateEstimateBudget() {
+<<<<<<< HEAD
         try {
             return 1200.0 + getRevision().size() * 100;
         } catch (Exception e) {
@@ -57,3 +58,27 @@ public class DesktopProject extends Project {
         }
     }
 }
+=======
+        double budget = 6000000;
+        if ("macOS".equalsIgnoreCase(this.operatingSystem)) budget += 1500000;
+        int revisionImpact = getRevisions().size() * 120000;
+        budget += revisionImpact;
+        return budget;
+    }
+
+    @Override
+    public LocalDate calculateEstimateProjectComplete() {
+        LocalDate estimatedComplete = getDeadline();
+        int revisionCount = getRevisions().size();
+        long extraDays = (long)(revisionCount / 3.0) * 7; // 1 week for every 3 revisions
+        return estimatedComplete.plusDays(extraDays);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() +
+               String.format(" | Type: Desktop | OS: %s",
+                             (operatingSystem != null ? operatingSystem : "N/A"));
+    }
+}
+>>>>>>> 78b702b (add ProjectManager class)
