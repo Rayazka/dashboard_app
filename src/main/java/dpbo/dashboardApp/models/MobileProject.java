@@ -39,7 +39,6 @@ public class MobileProject extends Project {
 
     @Override
     public double calculateEstimateBudget() {
-<<<<<<< HEAD
         try {
             return 1500.0 + getRevision().size() * 200;
         } catch (Exception e) {
@@ -58,28 +57,3 @@ public class MobileProject extends Project {
         }
     }
 }
-=======
-        double budget = 8_000_000;
-        if ("iOS".equalsIgnoreCase(this.platform)) budget += 2_000_000;
-        else if ("Android".equalsIgnoreCase(this.platform)) budget += 500_000;
-        int revisionImpact = getRevisions().size() * 150_000;
-        budget += revisionImpact;
-        return budget;
-    }
-
-    @Override
-    public LocalDate calculateEstimateProjectComplete() {
-        LocalDate estimatedComplete = getDeadline();
-        int revisionCount = getRevisions().size();
-        long extraDays = (long)revisionCount * 5;
-        return estimatedComplete.plusDays(extraDays);
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() +
-               String.format(" | Type: Mobile | Platform: %s",
-                             (platform != null ? platform : "N/A"));
-    }
-}
->>>>>>> 78b702b (add ProjectManager class)
