@@ -32,7 +32,7 @@ public abstract class Project extends ProjectDbController {
 			
 			this.title = super.getTitle(id);
 			this.description = super.getDescription(id);
-			this.client = super.getOwnerId(id);
+			this.ownerId = super.getOwnerId(id);
 			this.deadline = super.getDeadline(id);
 
 
@@ -90,50 +90,8 @@ public abstract class Project extends ProjectDbController {
     // toString override
     @Override
     public String toString() {
-        return "Project ID: " + id + ", Title: " + title + ", Client: " + client;
+        return "Project ID: " + id + ", Title: " + title + ", Client: " + ownerId;
     }
-
-    // Method Revisi
-    public void addRevision(String key, Revision revision) {
-        if (key != null && !key.isEmpty() && revision != null) {
-            revisions.put(key, revision);
-        } else {
-            System.out.println("Invalid key or revision is null.");
-        }
-    }
-
-    public boolean updateRevision(String key, Revision updatedRevision) {
-        if (key == null || key.isEmpty() || updatedRevision == null) {
-            System.out.println("Invalid key or updatedRevision is null.");
-            return false;
-        }
-        if (revisions.containsKey(key)) {
-            revisions.put(key, updatedRevision);
-            return true;
-        } else {
-            System.out.println("Revision with key " + key + " not found.");
-            return false;
-        }
-    }
-
-    public boolean deleteRevision(String key) {
-        if (key == null || key.isEmpty()) {
-            System.out.println("Key is null or empty.");
-            return false;
-        }
-        if (revisions.containsKey(key)) {
-            revisions.remove(key);
-            return true;
-        } else {
-            System.out.println("Revision with key " + key + " not found.");
-            return false;
-        }
-    }
-
-    public List<Revision> getAllRevisions() {
-        return new ArrayList<Revision>(revisions.values());
-    }
-
     // Abstract methods
     public abstract void displayProjectDetails();
 
