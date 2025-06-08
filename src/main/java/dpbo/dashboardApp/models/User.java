@@ -1,82 +1,20 @@
 package dpbo.dashboardApp.models;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.Statement;
-
-import dpbo.dashboardApp.db.DatabaseManager;
-
-class User extends DatabaseManager {
-	private Connection connection;
-
-	public User() {
-		super();
-		
-		try {
-			this.connection = super.getConnection();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+class User {
+	private String id;
+	private String username;
+	public User(String id, String username) {
+		this.id = id;
+		this.username = username;
 	}
-
-	public int getId(int id) throws Exception {
-		Statement statement = connection.createStatement();
-		
-		ResultSet s = statement.executeQuery("SELECT id FROM User WHERE id = " + id);
-
-		if (s.next()) {
-			return s.getInt("id");
-		} else {
-			throw new Exception("User not found with id: " + id);
-		}
+	public String getId() {
+		return id;
 	}
-
-	public String getName(int id) throws Exception {
-		Statement statement = connection.createStatement();
-		
-		ResultSet s = statement.executeQuery("SELECT name FROM User WHERE id = " + id);
-
-		if (s.next()) {
-			return s.getString("name");
-		} else {
-			throw new Exception("User not found with id: " + id);
-		}
+	public String getUsername() {
+		return username;
 	}
-
-	public String setName(int id, String name) throws Exception {
-		Statement statement = connection.createStatement();
-		
-		int rowsAffected = statement.executeUpdate("UPDATE User SET name = '" + name + "' WHERE id = " + id);
-
-		if (rowsAffected > 0) {
-			return "Name updated successfully.";
-		} else {
-			throw new Exception("User not found with id: " + id);
-		}
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", username=" + username + "]";
 	}
-
-	public String getEmail(int id) throws Exception {
-		Statement statement = connection.createStatement();
-		
-		ResultSet s = statement.executeQuery("SELECT email FROM User WHERE id = " + id);
-
-		if (s.next()) {
-			return s.getString("email");
-		} else {
-			throw new Exception("User not found with id: " + id);
-		}
-	}
-
-	public String setEmail(int id, String email) throws Exception {
-		Statement statement = connection.createStatement();
-		
-		int rowsAffected = statement.executeUpdate("UPDATE User SET email = '" + email + "' WHERE id = " + id);
-
-		if (rowsAffected > 0) {
-			return "Email updated successfully.";
-		} else {
-			throw new Exception("User not found with id: " + id);
-		}
-	}
-
 }
