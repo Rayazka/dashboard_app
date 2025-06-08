@@ -24,6 +24,14 @@ public class RevisionDbController extends DatabaseManager {
 		}
 	}
 
+	public void removeRevision(int revisionId) throws Exception {
+		Statement statement = connection.createStatement();
+		int rowsAffected = statement.executeUpdate("DELETE FROM Revision WHERE id = " + revisionId);
+		if (rowsAffected == 0) {
+			throw new RevisionNotFoundException("Revision with ID " + revisionId + " not found.");
+		}
+	}
+
 	public int getRevisionId(int projectId, String revisionName) throws Exception {
 		Statement statement = connection.createStatement();
 		ResultSet res = statement.executeQuery("SELECT id FROM Revision WHERE project_id = " + projectId + " AND name = '" + revisionName + "'");

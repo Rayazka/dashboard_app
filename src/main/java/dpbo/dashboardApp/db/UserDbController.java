@@ -19,7 +19,7 @@ public class UserDbController extends DatabaseManager {
 	public int getIdFromUsername(String username) throws Exception {
 		Statement statement = connection.createStatement();
 
-		ResultSet res = statement.executeQuery("SELECT id FROM User WHERE username = '" + username + "'");
+		ResultSet res = statement.executeQuery("SELECT id FROM User WHERE name = '" + username + "'");
 		if (res.next()) {
 			return res.getInt("id");
 		} else {

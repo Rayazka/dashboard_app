@@ -6,37 +6,28 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DatabaseManager {
-	private final String url = "jdbc:sqlite:sample.db";
-	private boolean isConnected = false;
-	private Connection connection;
+	private static final String url = "jdbc:sqlite:sample.db";
+	private static boolean isConnected = false;
+	private static Connection connection;
 
-	public DatabaseManager() {
-
-		try {
-			Class.forName("org.sqlite.JDBC");
-			connection = DriverManager.getConnection(url);
-			isConnected = true;
-			
-		} catch (SQLException e) {
-			System.err.println("Database connection failed: " + e.getMessage());
-		} catch (ClassNotFoundException e) {
-			System.err.println("SQLite JDBC Driver not found: " + e.getMessage());
-		}
-	}
 
 	public boolean isConnected() {
 		return isConnected;
 	}
 
-	public Connection getConnection() throws Exception {
-		if (!isConnected) {
-			throw new Exception("Database connection is not established.");
+	public static Connection getConnection() throws Exception {
+		
+		if (connection == null) {
+			Class.forName("org.sqlite.JDBC");
+			connection = DriverManager.getConnection(url);
+			isConnected = true;
 		}
 
 		return connection;
 	}
 
-	public void initializeDatabase() throws Exception {
+	public static void initializeDatabase() throws Exception {
+		getConnection();
 		if (!isConnected) {
 			throw new Exception("Database connection is not established.");
 		}
@@ -56,10 +47,11 @@ public class DatabaseManager {
 				+ "id INTEGER PRIMARY KEY,"
 				+ "title VARCHAR(100) NOT NULL,"
 				+ "description TEXT,"
-				+ "deadline DATETIME DEFAULT CURRENT_TIMESTAMP,"
+				+ "deadline TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
 				+ "type TEXT CHECK (type IN ('web', 'mobile', 'desktop')) NOT NULL,"
-				+ "FOREIGN KEY (owner_id) REFERENCES User(id) ON DELETE CASCADE ON UPDATE CASCADE,"
-				+ "STATUS TEXT DEFAULT 'active'"
+				+ "owner_id INTEGER NOT NULL,"
+				+ "STATUS TEXT DEFAULT 'active',"
+				+ "FOREIGN KEY (owner_id) REFERENCES User(id) ON DELETE CASCADE ON UPDATE CASCADE)"
 				);
 
 		// create Revision table
@@ -67,7 +59,13 @@ public class DatabaseManager {
 				+ "id INTEGER PRIMARY KEY,"
 				+ "notes TEXT,"
 				+ "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
+				+ "project_id INTEGER NOT NULL,"
 				+ "FOREIGN KEY (project_id) REFERENCES Project(id)"
+				+ ")"
 				);
+
+		// Create sample user
+		//
+		statement.executeUpdate("INSERT OR IGNORE INTO User (id, name, email) VALUES (1, 'admin', 'test@example.com')");
 	}
 }
