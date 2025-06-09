@@ -11,15 +11,38 @@ import dpbo.dashboardApp.exceptions.ProjectNotFoundException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 
+/**
+ * Kelas yang bertanggung jawab untuk mengelola operasi database terkait proyek.
+ * Kelas ini merupakan turunan dari {@see DatabaseManager} untuk berinteraksi dengan database proyek.
+ * 
+ */
 public class ProjectDbController extends DatabaseManager {
 
+	// Objek Connection untuk berinteraksi dengan database
 	private Connection connection;
 
+	/**
+	 * Konstruktor untuk inisialisasi ProjectDbController.
+	 * Menginisialisasi koneksi ke database.
+	 * 
+	 * @throws Exception jika terjadi kesalahan saat menginisialisasi koneksi
+	 */
 	public ProjectDbController() throws Exception {
 		super();
 		this.connection = super.getConnection();
 	}
 
+	/**
+	 * Membuat proyek baru dengan judul, deskripsi, tenggat waktu, ID pemilik, dan tipe proyek.
+	 * 
+	 * @param title Judul proyek
+	 * @param description Deskripsi proyek
+	 * @param deadline Tenggat waktu proyek
+	 * @param ownerId ID pemilik proyek
+	 * @param type Tipe proyek
+	 * @return ID proyek yang baru dibuat
+	 * @throws Exception jika terjadi kesalahan saat membuat proyek
+	 */
 	public int createNewProject(String title, String description, LocalDateTime deadline, int ownerId, String type) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -38,6 +61,12 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Menghapus proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek yang akan dihapus
+	 * @throws Exception jika terjadi kesalahan saat menghapus proyek
+	 */
 	public void removeProject(int projectId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -50,6 +79,14 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mendapatkan nilai dari atribut tertentu pada proyek berdasarkan ID.
+	 * 
+	 * @param projectId ID proyek
+	 * @param field Nama field yang ingin diambil nilainya
+	 * @return Nilai dari field yang diminta
+	 * @throws Exception jika terjadi kesalahan saat mengambil nilai field
+	 */
 	public String get(int projectId, String field) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -64,6 +101,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mendapatkan daftar ID proyek yang dimiliki oleh pengguna tertentu.
+	 * 
+	 * @param userId ID pengguna
+	 * @return Daftar ID proyek yang dimiliki oleh pengguna
+	 * @throws Exception jika terjadi kesalahan saat mengambil ID proyek
+	 */
 	public ArrayList<Integer> getProjectIdOwnedByUser(int userId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -79,20 +123,35 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
-	public String getTitle(int proectId) throws Exception {
+	/**
+	 * Mendapatkan judul proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @return Judul proyek
+	 * @throws Exception jika terjadi kesalahan saat mengambil judul proyek
+	 */
+	public String getTitle(int projectId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
-			ResultSet resultSet = statement.executeQuery("SELECT title FROM Project WHERE id = " + proectId);
+			ResultSet resultSet = statement.executeQuery("SELECT title FROM Project WHERE id = " + projectId);
 			if (resultSet.next()) {
 				return resultSet.getString("title");
 			} else {
-				throw new RuntimeException("Project with ID " + proectId + " not found.");
+				throw new RuntimeException("Project with ID " + projectId + " not found.");
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to retrieve project title: " + e.getMessage(), e);
 		}
 	}
 
+	/**
+	 * Mengatur judul proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @param title Judul baru untuk proyek
+	 * @return Judul yang telah diperbarui
+	 * @throws Exception jika terjadi kesalahan saat memperbarui judul proyek
+	 */
 	public String setTitle(int projectId, String title) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -106,6 +165,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mendapatkan tipe proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @return Tipe proyek
+	 * @throws Exception jika terjadi kesalahan saat mengambil tipe proyek
+	 */
 	public String getType(int projectId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -120,6 +186,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mengatur tipe proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @param type Tipe baru untuk proyek
+	 * @throws Exception jika terjadi kesalahan saat memperbarui tipe proyek
+	 */
 	public void setType(int projectId, String type) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -132,6 +205,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mendapatkan deskripsi proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @return Deskripsi proyek
+	 * @throws Exception jika terjadi kesalahan saat mengambil deskripsi proyek
+	 */
 	public String getDescription(int projectId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -146,6 +226,14 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mengatur deskripsi proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @param description Deskripsi baru untuk proyek
+	 * @return Deskripsi yang telah diperbarui
+	 * @throws Exception jika terjadi kesalahan saat memperbarui deskripsi proyek
+	 */
 	public String setDescription(int projectId, String description) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -159,6 +247,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mendapatkan tenggat waktu proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @return Tenggat waktu proyek sebagai LocalDateTime
+	 * @throws Exception jika terjadi kesalahan saat mengambil tenggat waktu proyek
+	 */
 	public LocalDateTime getDeadline(int projectId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -176,6 +271,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mengatur tenggat waktu proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @param deadline Tenggat waktu baru untuk proyek
+	 * @throws Exception jika terjadi kesalahan saat memperbarui tenggat waktu proyek
+	 */
 	public void setDeadline(int projectId, LocalDateTime deadline) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -188,6 +290,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mendapatkan status proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @return Status proyek
+	 * @throws Exception jika terjadi kesalahan saat mengambil status proyek
+	 */
 	public String getStatus(int projectId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -202,6 +311,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mengatur status proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @param status Status baru untuk proyek
+	 * @throws Exception jika terjadi kesalahan saat memperbarui status proyek
+	 */
 	public void setStatus(int projectId, String status) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -214,6 +330,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mendapatkan ID pemilik proyek berdasarkan ID proyek.
+	 * 
+	 * @param projectId ID proyek
+	 * @return ID pemilik proyek
+	 * @throws Exception jika terjadi kesalahan saat mengambil ID pemilik proyek
+	 */
 	public int getOwnerId(int projectId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {
@@ -229,6 +352,13 @@ public class ProjectDbController extends DatabaseManager {
 		}
 	}
 
+	/**
+	 * Mengatur pemilik proyek berdasarkan ID proyek dan ID pemilik baru.
+	 * 
+	 * @param projectId ID proyek
+	 * @param ownerId ID pemilik baru untuk proyek
+	 * @throws Exception jika terjadi kesalahan saat memperbarui pemilik proyek
+	 */
 	public void setOwner(int projectId, int ownerId) throws Exception {
 		Statement statement = connection.createStatement();
 		try {

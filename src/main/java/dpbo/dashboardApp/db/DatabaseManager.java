@@ -5,16 +5,37 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * Kelas yang bertanggung jawab untuk mengelola koneksi ke database
+ * dan menginisialisasi struktur database jika belum ada.
+ * 
+ */
 public class DatabaseManager {
+	// URL untuk koneksi ke database SQLite
 	private static final String url = "jdbc:sqlite:sample.db";
+
+	// Variabel untuk menyimpan status koneksi
 	private static boolean isConnected = false;
+
+	// Objek Connection untuk berinteraksi dengan database
 	private static Connection connection;
 
-
+	/**
+	 * Memeriksa apakah koneksi ke database berhasil atau belum.
+	 * 
+	 * @return true jika koneksi berhasil, false jika tidak
+	 */
 	public boolean isConnected() {
 		return isConnected;
 	}
 
+	/**
+	 * Mendapatkan koneksi ke database SQLite.
+	 * Jika koneksi belum ada, maka akan dibuat koneksi baru.
+	 * 
+	 * @return objek {@see Connection} yang digunakan untuk berinteraksi dengan database
+	 * @throws Exception jika terjadi kesalahan saat membuat koneksi
+	 */
 	public static Connection getConnection() throws Exception {
 		
 		if (connection == null) {
@@ -26,7 +47,12 @@ public class DatabaseManager {
 		return connection;
 	}
 
-	public static void initializeDatabase() throws Exception {
+	/**
+	 * Menginisialisasi database dengan membuat tabel-tabel yang diperlukan (jika tabel belum ada)
+	 * 
+	 * @throws Exception jika terjadi kesalahan saat menginisialisasi database
+	 */
+	public void initializeDatabase() throws Exception {
 		getConnection();
 		if (!isConnected) {
 			throw new Exception("Database connection is not established.");
@@ -65,7 +91,6 @@ public class DatabaseManager {
 				);
 
 		// Create sample user
-		//
 		statement.executeUpdate("INSERT OR IGNORE INTO User (id, name, email) VALUES (1, 'admin', 'test@example.com')");
 	}
 }

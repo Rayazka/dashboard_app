@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"dpbo.dashboardApp"},{"l":"dpbo.dashboardApp.auth"},{"l":"dpbo.dashboardApp.db"},{"l":"dpbo.dashboardApp.exceptions"},{"l":"dpbo.dashboardApp.models"}];updateSearchResults();
