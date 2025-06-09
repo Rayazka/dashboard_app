@@ -40,26 +40,28 @@ public class Main {
 		System.out.println("    PT. SAPTALOKA DIGITAL INDONESIA");
         	System.out.println("=========================================\n");
 
-		// Membaca username dan password dari input pengguna
-		System.out.print("Please enter your username:");
+		AuthService authService = new AuthService();
+		boolean isLoginValid = false;
+
+		while (!isLoginValid) {
+		System.out.print("Please enter your username: ");
 		String username = input.nextLine();
 
-		System.out.print("Please enter your password:");
-		String password = input.nextLine(); // Assuming password is not used in this example, but could be used in AuthService
+		System.out.print("Please enter your password: ");
+		String password = input.nextLine(); // belum digunakan
 
-        	// Melakukan autentikasi menggunakan AuthService
-		AuthService authService = new AuthService();
-		// Cek apakah username dan password valid
-		if (!authService.login(username)) {
-			System.out.println("Login failed. Please check your username and password.");
-			input.close();
-			return;
+		if (authService.login(username)) {
+			isLoginValid = true;
+			User user = new User(authService.getUserId());
+			System.out.println("Welcome, " + user.getUsername() + "! You have successfully logged in.\n");
+			// lanjut ke menu utama...
+		} else {
+			System.out.println("Login failed. Username tidak ditemukan. Silakan coba lagi.\n");
+		}
 		}
 
 		// Mendapatkan data User berdasarkan ID yang diberikan oleh AuthService
 		User user = new User(authService.getUserId());
-		// Jika login berhasil, tampilkan pesan selamat datang
-		System.out.println("Welcome, " + user.getUsername() + "! You have successfully logged in.\n");
 		
 		// Loop utama untuk menampilkan menu dan mengeksekusi perintah sesuai pilihan pengguna
 		int choice = 0;
@@ -71,8 +73,8 @@ public class Main {
 			 try {
 				choice = Integer.parseInt(input.nextLine());
 			} catch (NumberFormatException e) {
-				// Menangani input yang tidak valid (bukan angka)
-				throw new NumberFormatException("Input tidak valid. Harap masukkan angka.");
+				System.out.println("Input tidak valid. Harap masukkan angka.");
+				continue; // kembali ke awal while-loop tanpa menghentikan program
 			}
 
 			// Membuat objek ProjectManager untuk mengelola proyek
@@ -99,7 +101,7 @@ public class Main {
 					String client = input.nextLine();
 					System.out.print("Masukkan Tanggal Deadline (YYYY-MM-DD): ");
 					String deadlineStr = input.nextLine();
-					System.out.print("Tipe Proyek (web, desktop, mobile):");
+					System.out.print("Tipe Proyek (web, desktop, mobile): ");
 					String type = input.nextLine();
 					
 					// Validasi tipe proyek
@@ -109,13 +111,20 @@ public class Main {
 					}
 
 					// get clientId from DB
-					UserDbController userDbController = new UserDbController();
-					int clientId = userDbController.getIdFromUsername(client);
+					int clientId = -1;
+					try {
+						UserDbController userDbController = new UserDbController();
+						clientId = userDbController.getIdFromUsername(client);
+					} catch (Exception e) {
+						System.out.println("\nKlien tidak ditemukan. Pastikan nama klien sudah benar.\n");
+						break;
+					}
+					
 
 					// Parse the deadline string to LocalDateTime
 					LocalDateTime deadline;
 					try {
-						deadline = LocalDateTime.parse(deadlineStr + "T00:00:00");
+						deadline = LocalDateTime.parse(deadlineStr);
 					} catch (Exception e) {
 						System.out.println("Format tanggal tidak valid. Gunakan format YYYY-MM-DD.");
 						continue;
@@ -298,6 +307,7 @@ public class Main {
 				return;
 			}
 
+			// Menampilkan menu Revisi
 			int choice = 0;
 			while (choice != 5) {
 			System.out.println("\n=== MENU REVISI UNTUK PROYEK: " + project.getTitle() + " ===");
@@ -335,15 +345,11 @@ public class Main {
 					// Menambahkan revisi baru.
 					if (scanner.hasNextLine()) scanner.nextLine();
 
-					// Meminta input judul dan deskripsi revisi
-					System.out.print("Judul: ");
-					String title = scanner.nextLine();
-
-					System.out.print("Deskripsi: ");
+					System.out.print("\nCatatan: ");
 					String desc = scanner.nextLine();
 
 					// Memanggil RevisionDbController untuk membuat revisi baru
-					revisionDbController.createRevision(projectId, title, desc);
+					revisionDbController.createRevision(projectId, "Revisi", desc);
 
 					System.out.println("Revisi ditambahkan.");
 					break;
@@ -353,7 +359,7 @@ public class Main {
 					if (scanner.hasNextLine()) scanner.nextLine();
 
 					// Meminta input ID revisi yang ingin diedit
-					System.out.print("ID Revisi yang ingin diedit: ");
+					System.out.print("\nID Revisi yang ingin diedit: ");
 					int idToEdit;
 					/**
 					 * Validasi input ID revisi
@@ -376,7 +382,7 @@ public class Main {
 					try {
 						String notes = revisionDbController.getNotes(idToEdit);
 						
-						System.out.println("Catatan saat ini: " + notes);
+						System.out.println("\nCatatan saat ini: " + notes);
 						System.out.print("Masukkan catatan baru: ");
 						// Membaca catatan baru dari input
 						String newNotes = scanner.nextLine();
@@ -394,7 +400,7 @@ public class Main {
 					if (scanner.hasNextLine()) scanner.nextLine();
 
 					// Meminta input ID revisi yang ingin dihapus
-					System.out.print("ID Revisi yang ingin dihapus: ");
+					System.out.print("\nID Revisi yang ingin dihapus: ");
 					int idToDelete;
 
 					/**

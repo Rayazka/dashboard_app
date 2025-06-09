@@ -213,7 +213,8 @@ public abstract class Project extends ProjectDbController  implements IProject{
      * Mengembalikan representasi string dari proyek.
      * 
      * @return Representasi string dari proyek, termasuk ID, judul, dan ID pemilik.
-     */    @Override
+     */    
+    @Override
     public String toString() {
         return "Project ID: " + id + ", Title: " + title + ", Client: " + ownerId;
     }

@@ -86,6 +86,10 @@ public class Revision extends RevisionDbController{
 	 */
 	@Override
 	public String toString() {
-		return "Revision [id=" + id + "notes="+ notes + ", createdAt=" + createdAt + "]";
+	return  "\nID Revisi     : " + id + "\n" +
+		"Catatan       : " + (notes != null ? notes : "Tidak ada catatan") + "\n" +
+		"Dibuat pada   : " + (createdAt != null ? createdAt.toString() : "Belum tersedia") + "\n" +
+		"=========================================";
 	}
+
 }
