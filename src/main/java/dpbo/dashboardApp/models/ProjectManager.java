@@ -47,6 +47,7 @@ public class ProjectManager {
 	public void removeProject(int projectId) throws ProjectNotFoundException, Exception {
 		// Menghapus project berdasarkan ID
 		projectDbController.removeProject(projectId);
+		System.out.println("Project dengan ID " + projectId + " telah dihapus.\n");
 	}
         
         /**
@@ -84,23 +85,23 @@ public class ProjectManager {
 	 */
         public List<Project> findProjectsByClient(int clientId) throws Exception {
 			
-			// Mengambil daftar ID proyek yang dimiliki oleh klien.
-			ArrayList<Integer> projects = projectDbController.getProjectIdOwnedByUser(clientId);
-			// Inisialisasi daftar proyek yang akan dikembalikan.
-			List<Project> projectList = new ArrayList<Project>();
+		// Mengambil daftar ID proyek yang dimiliki oleh klien.
+		ArrayList<Integer> projects = projectDbController.getProjectIdOwnedByUser(clientId);
+		// Inisialisasi daftar proyek yang akan dikembalikan.
+		List<Project> projectList = new ArrayList<Project>();
         		
-			// Iterasi setiap ID proyek dan coba mendapatkannya.
-			for (int projectId : projects) {
-				try {
-					Project project = findProjectById(projectId);
-					projectList.add(project);
-				} catch (ProjectNotFoundException e) {
-					// Project tidak ditemukan, lanjutkan ke project berikutnya
-					new ProjectNotFoundException("Project dengan ID " + projectId + " tidak ditemukan.");
-				}
+		// Iterasi setiap ID proyek dan coba mendapatkannya.
+		for (int projectId : projects) {
+			try {
+				Project project = findProjectById(projectId);
+				projectList.add(project);
+			} catch (ProjectNotFoundException e) {
+				// Project tidak ditemukan, lanjutkan ke project berikutnya
+				new ProjectNotFoundException("Project dengan ID " + projectId + " tidak ditemukan.");
 			}
-			return projectList;
 		}
+		return projectList;
+	}
 
 	/**
 	 * Menampilkan semua detail proyek yang dimiliki oleh pengguna berdasarkan ID mereka.
@@ -111,11 +112,17 @@ public class ProjectManager {
 		// Mengambil daftar ID proyek yang dimiliki oleh pengguna.
 		ArrayList<Integer> projectIds = projectDbController.getProjectIdOwnedByUser(userId);
 
+		// Jika tidak ada proyek yang ditemukan, tampilkan pesan.
+		if (projectIds.isEmpty()) {
+			System.out.println("Tidak ada proyek yang ditemukan untuk pengguna dengan ID " + userId + "\n");
+			return;
+		}
+
 		// Iterasi setiap proyek dan tampilkan informasinya.
 		for (int projectId : projectIds) {
 			Project project = findProjectById(projectId);
 
-			System.out.println("Project ID: " + project.getId());
+			System.out.println("\nProject ID: " + project.getId());
 			System.out.println("Title: " + project.getTitle());
 			System.out.println("Description: " + project.getDescription());
 			System.out.println("Deadline: " + project.getDeadline());
