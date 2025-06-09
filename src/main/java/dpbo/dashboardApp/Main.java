@@ -11,6 +11,7 @@ import dpbo.dashboardApp.db.ProjectDbController;
 import dpbo.dashboardApp.db.RevisionDbController;
 import dpbo.dashboardApp.db.UserDbController;
 import dpbo.dashboardApp.exceptions.ProjectNotFoundException;
+import dpbo.dashboardApp.exceptions.RevisionNotFoundException;
 import dpbo.dashboardApp.models.Project;
 import dpbo.dashboardApp.models.ProjectManager;
 import dpbo.dashboardApp.models.Revision;
@@ -372,26 +373,21 @@ public class Main {
 						return;
 					}
 
-					// Membuat objek Revision untuk mendapatkan informasi revisi yang ingin diedit
-					Revision revision = new Revision(projectId);
-
-					/**
-					 * Menangani error khusus ketika mendapatkan revisi berdasarkan ID
-					 * Jika revisi tidak ditemukan, akan menampilkan pesan kesalahan
-					 */
 					try {
+						// Validasi apakah revisi benar-benar ada
+						Revision revision = new Revision(idToEdit);
+
 						String notes = revisionDbController.getNotes(idToEdit);
-						
 						System.out.println("\nCatatan saat ini: " + notes);
 						System.out.print("Masukkan catatan baru: ");
-						// Membaca catatan baru dari input
 						String newNotes = scanner.nextLine();
 
-						// Memperbarui catatan revisi di database
-						revisionDbController.setNotes(revision.getId(), newNotes);
+						revisionDbController.setNotes(idToEdit, newNotes);
 						System.out.println("Revisi diperbarui.");
+					} catch (RevisionNotFoundException e) {
+						System.out.println("Revisi dengan ID " + idToEdit + " tidak ditemukan.");
 					} catch (Exception e) {
-						System.out.println("Error: " + e.getMessage());
+						System.out.println("Terjadi kesalahan: " + e.getMessage());
 					}
 				break;
 
